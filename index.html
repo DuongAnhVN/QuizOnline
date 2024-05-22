@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Website</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <header>
@@ -13,8 +14,14 @@
     <div id="popup" class="popup">
         <div class="popup-content">
             <h2>Welcome to the Quiz!</h2>
-            <label for="timeInput">Set time (in minutes):</label>
-            <input type="number" id="timeInput" min="1" max="120" step="1" value="60">
+            <div class="inputPopup">
+                <label for="timeInput">Set time (in minutes):</label>
+                <input type="number" id="timeInput" min="1" max="120" step="1" value="45">
+            </div>
+            <div class="inputPopup">
+                <label for="countInput">Set number of questions:</label>
+                <input type="number" id="countInput" min="10" max="100" step="1" value="100">
+            </div>
             <button id="startButton">Start</button>
         </div>
     </div>
@@ -22,7 +29,7 @@
         <div id="quiz"></div>
     </div>
     <footer>
-        <div id="timer">Time remaining: <span id="time">60:00</span></div>
+        <div id="timer">Time remaining: <span id="time">45:00</span></div>
         <button id="submit">Submit</button>
         <div id="results"></div>
     </footer>

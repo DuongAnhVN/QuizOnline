@@ -66,6 +66,7 @@ button:hover {
 
 .question {
     margin-bottom: 10px; /* Thêm margin cho phần câu hỏi */
+    font-weight: bold;
 }
 
 .answers {
@@ -113,7 +114,9 @@ button:hover {
     margin-bottom: 20px;
 }
 
-
+.inputPopup{
+    margin-bottom: 5px;
+}
 /* Responsive CSS */
 @media screen and (max-width: 768px) {
     .quiz-container {

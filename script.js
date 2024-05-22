@@ -7,18 +7,22 @@ const range = 'Sheet1!A:F';
 const maxTimeInSeconds = 60 * 60;
 let timeRemaining = maxTimeInSeconds;
 let timerInterval;
+let questions;
 
 window.onload = function() {
 
     const popup = document.getElementById('popup');
     const startButton = document.getElementById('startButton');
     const timeInput = document.getElementById('timeInput');
+    const countInput = document.getElementById('countInput');
 
     // Hiển thị popup
     popup.style.display = 'block';
     // Bắt sự kiện khi nhấn nút "Start"
     startButton.addEventListener('click', function() {
         const selectedTime = parseInt(timeInput.value);
+        const countQuestions = parseInt(countInput.value);
+
         // Kiểm tra nếu thời gian được chọn hợp lệ và lớn hơn 0
         if (!isNaN(selectedTime) && selectedTime > 0) {
             // Ẩn popup
@@ -33,8 +37,13 @@ window.onload = function() {
             // Gọi hàm giảm thời gian mỗi giây
             timerInterval = setInterval(decreaseTime, 1000);
             // Bắt đầu quiz
-            fetchQuizData().then(questions => {
-                buildQuiz(questions);
+            fetchQuizData().then(questionsresult => {
+                if (questionsresult.length >= countQuestions) {
+                    questions = shuffle(questionsresult).slice(0, countQuestions);
+                } else {
+                    questions = shuffle(questionsresult);
+                }
+                buildQuiz();
             });
         } else {
             alert('Please enter a valid time.');
@@ -86,11 +95,9 @@ function shuffle(array) {
     return array;
 }
 
-function buildQuiz(questions) {
+function buildQuiz() {
     const quizContainer = document.getElementById('quiz');
     const output = [];
-    
-    questions = shuffle(questions);
 
     questions.forEach((question, index) => {
         let answers = [];
@@ -98,7 +105,7 @@ function buildQuiz(questions) {
             if (question[i]) {
                 answers.push(
                     `<label>
-                        <input type="radio" name="question${index}" value="${i}">
+                        <input type="radio" name="answer${index}" value="${i}">
                         ${question[i]}
                     </label>`
                 );
@@ -110,7 +117,7 @@ function buildQuiz(questions) {
 
         output.push(
             `<div class="question-container">
-                <div class="question" id="question">${question[0]}</div>
+                <div class="question" id="question${index}">${index+1}. ${question[0]}</div>
                 <div class="answers">${answers.join('')}</div>
             </div>`
         );
@@ -118,21 +125,31 @@ function buildQuiz(questions) {
     quizContainer.innerHTML = output.join('');
 }
 
-function showResults(questions) {
+function showResults() {
     const quizContainer = document.getElementById('quiz');
     const answerContainers = quizContainer.querySelectorAll('.answers');
     let numCorrect = 0;
 
     questions.forEach((question, index) => {
         const answerContainer = answerContainers[index];
-        const selector = `input[name=question${index}]:checked`;
-        const userAnswer = (answerContainer.querySelector(selector) || {}).value;
-        
-        if (userAnswer === question[5]) {
-            numCorrect++;
-            answerContainers[index].style.color = 'green';
-        } else {
-            answerContainers[index].style.color = 'red';
+        const input = answerContainer.querySelector('input[type=radio]:checked');
+        if (input) {
+            if (input.value == question[5]) {
+                numCorrect++;
+                input.parentNode.style.color = 'green'; // Hiển thị màu xanh cho câu trả lời đúng
+            } else {
+                const faIcon = document.createElement('i');
+                faIcon.classList.add('fas', 'fa-times-circle');
+                faIcon.style.color = 'red';
+                faIcon.style.marginRight = '5px';
+                const questionContainer = document.getElementById(`question${index}`);
+                questionContainer.insertBefore(faIcon, questionContainer.firstChild);
+                const correctInput = answerContainer.querySelector(`input[type=radio][value="${question[5]}"]`);
+                if (correctInput) {
+                    correctInput.parentNode.style.color = 'green';
+                }
+                input.parentNode.style.color = 'red'; // Hiển thị màu đỏ cho câu trả lời sai
+            }
         }
     });
 
@@ -141,14 +158,12 @@ function showResults(questions) {
 }
 
 document.getElementById('submit').addEventListener('click', () => {
-
-    fetchQuizData().then(questions => {
         const quizContainer = document.getElementById('quiz');
         const answerContainers = quizContainer.querySelectorAll('.answers');
         let allAnswered = true;
 
         answerContainers.forEach((answerContainer, index) => {
-            const selector = `input[name=question${index}]:checked`;
+            const selector = `input[name=answer${index}]:checked`;
             const userAnswer = answerContainer.querySelector(selector);
             const questionContainer = answerContainer.closest('.question-container');
 
@@ -162,13 +177,11 @@ document.getElementById('submit').addEventListener('click', () => {
 
         if (allAnswered) {
             clearInterval(timerInterval);
-            showResults(questions);
+            showResults();
             document.getElementById('results').style.color = ''; // Reset result message color
-            document.getElementById('results').innerText = `${numCorrect} out of ${questions.length} correct`;
         } else {
             document.getElementById('results').style.color = 'red';
             document.getElementById('results').innerText = 'Please answer all questions.';
         }
-    });
 });
 
