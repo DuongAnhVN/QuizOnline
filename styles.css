@@ -1,0 +1,132 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+header {
+    margin-top: 20px;
+}
+
+.quiz-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
+    margin-top: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+h1 {
+    text-align: center;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#results {
+    text-align: center;
+    font-weight: bold;
+}
+
+.question-container {
+    margin-bottom: 10px; /* Thêm khoảng cách giữa các câu hỏi */
+    border-bottom: 1px solid #ccc; /* Thêm đường gạch ngang */
+}
+
+.question {
+    margin-bottom: 10px; /* Thêm margin cho phần câu hỏi */
+}
+
+.answers {
+    margin-bottom: 10px; /* Thêm margin cho phần câu trả lời */
+}
+
+.answers label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.answers input[type="radio"] {
+    margin-right: 10px;
+}
+
+#timer{
+    margin-bottom: 5px;
+}
+
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+}
+
+.popup-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.popup-content h2 {
+    margin-bottom: 20px;
+}
+
+
+/* Responsive CSS */
+@media screen and (max-width: 768px) {
+    .quiz-container {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    header h1 {
+        font-size: 24px;
+    }
+    footer button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
