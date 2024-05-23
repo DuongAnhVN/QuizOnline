@@ -111,10 +111,6 @@ function buildQuiz() {
                 );
             }
         }
-
-        answers = shuffle(answers);
-
-
         output.push(
             `<div class="question-container">
                 <div class="question" id="question${index}">${index+1}. ${question[0]}</div>
