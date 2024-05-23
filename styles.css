@@ -54,6 +54,10 @@ button:hover {
     background-color: #45a049;
 }
 
+button:disabled {
+    background-color: gray;
+}
+
 #results {
     text-align: center;
     font-weight: bold;
@@ -108,14 +112,28 @@ button:hover {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     text-align: center;
+    width: 60%;
+    max-width: 80%;
 }
 
 .popup-content h2 {
     margin-bottom: 20px;
 }
 
+.popup-content select {
+    max-width: 80%;
+}
+
 .inputPopup{
     margin-bottom: 5px;
+}
+
+.config{
+    margin-bottom: 10px;
+}
+
+.tagQuestion{
+    color: #45a049;
 }
 /* Responsive CSS */
 @media screen and (max-width: 768px) {

@@ -1,6 +1,6 @@
 const apiKey = 'AIzaSyBD8LXB-CEByc04G_hqO44uh1LmsDwjcOk';
 const sheetId = '1fh9D28GDIZpG8p440zLKZgi8vo_DjAK4Xyb2PYfZBHw';
-const range = 'Sheet1!A:F';
+const range = 'Sheet1!A:G';
 
 
 // Thời gian tối đa (1 giờ)
@@ -15,7 +15,7 @@ window.onload = function() {
     const startButton = document.getElementById('startButton');
     const timeInput = document.getElementById('timeInput');
     const countInput = document.getElementById('countInput');
-
+    const selectedOption = document.getElementById('options').value;
     // Hiển thị popup
     popup.style.display = 'block';
     // Bắt sự kiện khi nhấn nút "Start"
@@ -25,25 +25,29 @@ window.onload = function() {
 
         // Kiểm tra nếu thời gian được chọn hợp lệ và lớn hơn 0
         if (!isNaN(selectedTime) && selectedTime > 0) {
-            // Ẩn popup
-            document.querySelector('footer').style = 'display: flex'
+            
+            fetchQuizData(selectedOption,countQuestions).then(questionsresult => {
+                if(questionsresult == null){
+                    document.getElementById('notice').style.color = 'red';
+                    document.getElementById('notice').textContent  = 'Lỗi câu hỏi. lh: 0364072379';
+                }else{
+                    document.getElementById('notice').style.color = '';
+                    document.getElementById('notice').innerText = '';
+                    // Ẩn popup
+                    popup.style.display = 'none';
 
-            popup.style.display = 'none';
-            // Gán thời gian còn lại bằng thời gian được chọn (chuyển đổi thành giây)
-            timeRemaining = selectedTime * 60;
-            // Hiển thị thời gian ban đầu
-            displayTime();
-            marginQuizContainer();
-            // Gọi hàm giảm thời gian mỗi giây
-            timerInterval = setInterval(decreaseTime, 1000);
-            // Bắt đầu quiz
-            fetchQuizData().then(questionsresult => {
-                if (questionsresult.length >= countQuestions) {
-                    questions = shuffle(questionsresult).slice(0, countQuestions);
-                } else {
-                    questions = shuffle(questionsresult);
+                    document.querySelector('footer').style = 'display: flex'
+                    // Gán thời gian còn lại bằng thời gian được chọn (chuyển đổi thành giây)
+                    timeRemaining = selectedTime * 60;
+                    // Hiển thị thời gian ban đầu
+                    displayTime();
+                    marginQuizContainer();
+                    // Gọi hàm giảm thời gian mỗi giây
+                    timerInterval = setInterval(decreaseTime, 1000);
+
+                    questions = questionsresult;
+                    buildQuiz();
                 }
-                buildQuiz();
             });
         } else {
             alert('Please enter a valid time.');
@@ -51,6 +55,10 @@ window.onload = function() {
     });
 
 };
+
+
+
+
 
 function marginQuizContainer(){
     // Lấy chiều cao của footer
@@ -74,17 +82,51 @@ function decreaseTime() {
         timeRemaining--;
         displayTime();
         if (timeRemaining === 0) {
-            submitQuiz();
+            document.getElementById('submit').disabled  = true;
+            showResults();
         }
     }
 }
 
 
 
-async function fetchQuizData() {
+async function fetchQuizData(tag, number) {
     const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`);
     const data = await response.json();
-    return data.values;
+
+    const allQuestions = data.values;
+
+    if (tag == 'TDKHCN') {
+        const category1 = 'TDKHCN_Tín dụng_Khách hàng cá nhân';
+        const category2 = 'TDKHCN_Kiến thức chung';
+        const category3 = 'TDKHCN_Kỹ năng Quản lý lãnh đạo';
+        const category4 = 'TDKHCN_Tiêu chuẩn phong cách giao dịch';
+
+        const questionsCategory1 = allQuestions.filter(row => row[6] == category1);
+        const questionsCategory2 = allQuestions.filter(row => row[6] === category2);
+        const questionsCategory3 = allQuestions.filter(row => row[6] === category3);
+        const questionsCategory4 = allQuestions.filter(row => row[6] === category4);
+
+        const numCategory1 = Math.floor(number * 0.75);
+        const numCategoryOthers = number - numCategory1;
+        const numEachOtherCategory = Math.floor(numCategoryOthers / 3);
+        const remainder = numCategoryOthers % 3;
+        console.log(numCategory1, numCategoryOthers,numEachOtherCategory);
+
+        const selectedQuestions = [
+            ...shuffle(questionsCategory1).slice(0, numCategory1),
+            ...shuffle(questionsCategory2).slice(0, numEachOtherCategory + (remainder > 0 ? 1 : 0)),
+            ...shuffle(questionsCategory3).slice(0, numEachOtherCategory + (remainder > 1 ? 1 : 0)),
+            ...shuffle(questionsCategory4).slice(0, numEachOtherCategory)
+        ];
+
+        console.log(selectedQuestions.slice(0, number).length);
+
+        return shuffle(selectedQuestions.slice(0, number));
+    }
+
+
+    return null;
 }
 
 function shuffle(array) {
@@ -111,9 +153,10 @@ function buildQuiz() {
                 );
             }
         }
+
         output.push(
             `<div class="question-container">
-                <div class="question" id="question${index}">${index+1}. ${question[0]}</div>
+                <div class="question" id="question${index}">${index+1}. ${question[0]} - <label class="tagQuestion">${question[6]}</label></div>
                 <div class="answers">${answers.join('')}</div>
             </div>`
         );
@@ -125,11 +168,13 @@ function showResults() {
     const quizContainer = document.getElementById('quiz');
     const answerContainers = quizContainer.querySelectorAll('.answers');
     let numCorrect = 0;
+    let numCheck = 0;
 
     questions.forEach((question, index) => {
         const answerContainer = answerContainers[index];
         const input = answerContainer.querySelector('input[type=radio]:checked');
         if (input) {
+            numCheck++;
             if (input.value == question[5]) {
                 numCorrect++;
                 input.parentNode.style.color = 'green'; // Hiển thị màu xanh cho câu trả lời đúng
@@ -150,7 +195,7 @@ function showResults() {
     });
 
 
-    document.getElementById('results').innerText = `${numCorrect} out of ${questions.length} correct`;
+    document.getElementById('results').innerText = `${numCorrect} out of ${numCheck} correct`;
 }
 
 document.getElementById('submit').addEventListener('click', () => {
@@ -180,4 +225,3 @@ document.getElementById('submit').addEventListener('click', () => {
             document.getElementById('results').innerText = 'Please answer all questions.';
         }
 });
-
