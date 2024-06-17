@@ -15,13 +15,13 @@ window.onload = function() {
     const startButton = document.getElementById('startButton');
     const timeInput = document.getElementById('timeInput');
     const countInput = document.getElementById('countInput');
-    const selectedOption = document.getElementById('options').value;
     // Hiển thị popup
     popup.style.display = 'block';
     // Bắt sự kiện khi nhấn nút "Start"
     startButton.addEventListener('click', function() {
         const selectedTime = parseInt(timeInput.value);
         const countQuestions = parseInt(countInput.value);
+        const selectedOption = document.getElementById('options').value;
 
         // Kiểm tra nếu thời gian được chọn hợp lệ và lớn hơn 0
         if (!isNaN(selectedTime) && selectedTime > 0) {
@@ -96,13 +96,20 @@ async function fetchQuizData(tag, number) {
 
     const allQuestions = data.values;
 
-    if (tag == 'TDKHCN') {
-        const category1 = 'TDKHCN_Tín dụng_Khách hàng cá nhân';
-        const category2 = 'TDKHCN_Kiến thức chung';
-        const category3 = 'TDKHCN_Kỹ năng Quản lý lãnh đạo';
-        const category4 = 'TDKHCN_Tiêu chuẩn phong cách giao dịch';
-
-        const questionsCategory1 = allQuestions.filter(row => row[6] == category1);
+    if(tag != '')
+    {
+        let category1;
+        const category2 = tag + '_Kiến thức chung';
+        const category3 = tag + '_Kỹ năng Quản lý lãnh đạo';
+        const category4 = tag + '_Tiêu chuẩn phong cách giao dịch';
+        if (tag == 'TDKHCN') {
+            category1 = tag + '_Tín dụng_Khách hàng cá nhân';
+        }else if(tag == 'TDKHDN')
+        {
+            category1 = tag + '_Tín dụng khách hàng doanh nghiệp';
+        }
+        
+        const questionsCategory1 = allQuestions.filter(row => row[6] == category1.toString());
         const questionsCategory2 = allQuestions.filter(row => row[6] === category2);
         const questionsCategory3 = allQuestions.filter(row => row[6] === category3);
         const questionsCategory4 = allQuestions.filter(row => row[6] === category4);
@@ -111,7 +118,7 @@ async function fetchQuizData(tag, number) {
         const numCategoryOthers = number - numCategory1;
         const numEachOtherCategory = Math.floor(numCategoryOthers / 3);
         const remainder = numCategoryOthers % 3;
-        console.log(numCategory1, numCategoryOthers,numEachOtherCategory);
+        //console.log(numCategory1, numCategoryOthers,numEachOtherCategory);
 
         const selectedQuestions = [
             ...shuffle(questionsCategory1).slice(0, numCategory1),
@@ -120,12 +127,11 @@ async function fetchQuizData(tag, number) {
             ...shuffle(questionsCategory4).slice(0, numEachOtherCategory)
         ];
 
-        console.log(selectedQuestions.slice(0, number).length);
 
         return shuffle(selectedQuestions.slice(0, number));
     }
 
-
+    
     return null;
 }
 
