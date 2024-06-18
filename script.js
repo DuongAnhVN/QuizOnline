@@ -8,15 +8,18 @@ const maxTimeInSeconds = 60 * 60;
 let timeRemaining = maxTimeInSeconds;
 let timerInterval;
 let questions;
+const incorrectAnswers = [];
 
 window.onload = function() {
 
+    const download = document.getElementById('download');
     const popup = document.getElementById('popup');
     const startButton = document.getElementById('startButton');
     const timeInput = document.getElementById('timeInput');
     const countInput = document.getElementById('countInput');
     // Hiển thị popup
     popup.style.display = 'block';
+    download.style.display = 'none';
     // Bắt sự kiện khi nhấn nút "Start"
     startButton.addEventListener('click', function() {
         const selectedTime = parseInt(timeInput.value);
@@ -108,7 +111,7 @@ async function fetchQuizData(tag, number) {
         {
             category1 = tag + '_Tín dụng khách hàng doanh nghiệp';
         }
-        
+
         const questionsCategory1 = allQuestions.filter(row => row[6] == category1.toString());
         const questionsCategory2 = allQuestions.filter(row => row[6] === category2);
         const questionsCategory3 = allQuestions.filter(row => row[6] === category3);
@@ -196,12 +199,55 @@ function showResults() {
                     correctInput.parentNode.style.color = 'green';
                 }
                 input.parentNode.style.color = 'red'; // Hiển thị màu đỏ cho câu trả lời sai
+
+                incorrectAnswers.push({
+                    question: question[0], // giả sử question[0] chứa câu hỏi
+                    selectedAnswer: question[input.value],
+                    correctAnswer: question[question[5]]
+                });
             }
         }
     });
+    console.log(incorrectAnswers);
+
+    document.getElementById('submit').disabled = true;
+    document.getElementById('download').style.display = 'block';
 
 
     document.getElementById('results').innerText = `${numCorrect} out of ${numCheck} correct`;
+}
+
+
+document.getElementById('download').addEventListener('click', () => {
+    let txtContent = 'Các câu trả lời sai:\n\n';
+    incorrectAnswers.forEach((item, idx) => {
+        txtContent += `${idx + 1}. ${item.question}\n`;
+        txtContent += `   - Câu trả lời đã chọn: ${item.selectedAnswer}\n`;
+        txtContent += `   - Câu trả lời đúng: ${item.correctAnswer}\n\n`;
+    });
+
+    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `incorrect-${getFormattedCurrentTime()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+});
+
+function getFormattedCurrentTime() {
+    const now = new Date();
+
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+    const year = now.getFullYear();
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+
+    return `${day}/${month}/${year}-${hour}h${minute}`;
 }
 
 document.getElementById('submit').addEventListener('click', () => {
