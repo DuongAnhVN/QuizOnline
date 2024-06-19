@@ -9,6 +9,7 @@ let timeRemaining = maxTimeInSeconds;
 let timerInterval;
 let questions;
 const incorrectAnswers = [];
+const correctAnswers = [];
 
 window.onload = function() {
 
@@ -187,6 +188,12 @@ function showResults() {
             if (input.value == question[5]) {
                 numCorrect++;
                 input.parentNode.style.color = 'green'; // Hiển thị màu xanh cho câu trả lời đúng
+
+                correctAnswers.push({
+                    question: question[0], 
+                    selectedAnswer: question[input.value]
+                });
+
             } else {
                 const faIcon = document.createElement('i');
                 faIcon.classList.add('fas', 'fa-times-circle');
@@ -208,7 +215,7 @@ function showResults() {
             }
         }
     });
-    console.log(incorrectAnswers);
+    //console.log(incorrectAnswers);
 
     document.getElementById('submit').disabled = true;
     document.getElementById('download').style.display = 'block';
@@ -219,7 +226,14 @@ function showResults() {
 
 
 document.getElementById('download').addEventListener('click', () => {
-    let txtContent = 'Các câu trả lời sai:\n\n';
+
+    let txtContent = `Time: ${getFormattedCurrentTime()} - Điểm ${correctAnswers.length}/${correctAnswers.length + incorrectAnswers.length}\n\nCác câu trả lời đúng:\n\n`;
+    correctAnswers.forEach((item, idx) => {
+        txtContent += `${idx + 1}. ${item.question}\n`;
+        txtContent += `   - Câu trả lời đã chọn: ${item.selectedAnswer}\n`;
+    });
+
+    txtContent += '\n\nCác câu trả lời sai:\n\n';
     incorrectAnswers.forEach((item, idx) => {
         txtContent += `${idx + 1}. ${item.question}\n`;
         txtContent += `   - Câu trả lời đã chọn: ${item.selectedAnswer}\n`;
